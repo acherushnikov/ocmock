@@ -118,7 +118,7 @@
             [aValue getValue:&objValue];
 			if (![self->mockObject isEqual:objValue])
 			{
-				objc_setAssociatedObject(self, "OCMAssociatedBoxedValue", *(__unsafe_unretained id *) (void *) &objValue, OBJC_ASSOCIATION_RETAIN);
+				objc_setAssociatedObject(self, "OCMAssociatedBoxedValue", objValue, OBJC_ASSOCIATION_RETAIN);
 			}
             return [self andReturn:objValue];
         }
