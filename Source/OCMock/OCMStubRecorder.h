@@ -36,9 +36,6 @@
 #define andReturn(aValue) _andReturn(({                                             \
   __typeof__(aValue) _val = (aValue);                                               \
   NSValue *_nsval = [NSValue value:&_val withObjCType:@encode(__typeof__(_val))];   \
-  if (OCMIsObjectType(@encode(__typeof(_val)))) {                                   \
-      objc_setAssociatedObject(_nsval, "OCMAssociatedBoxedValue", *(__unsafe_unretained id *) (void *) &_val, OBJC_ASSOCIATION_RETAIN); \
-  }                                                                                 \
   _nsval;                                                                           \
 }))
 @property (nonatomic, readonly) OCMStubRecorder *(^ _andReturn)(NSValue *);

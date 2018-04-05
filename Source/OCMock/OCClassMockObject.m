@@ -122,12 +122,17 @@
     /* adding forwarder for most class methods (instance methods on meta class) to allow for verify after run */
     NSArray *methodBlackList = @[@"class", @"forwardingTargetForSelector:", @"methodSignatureForSelector:", @"forwardInvocation:", @"isBlock",
             @"instanceMethodForwarderForSelector:", @"instanceMethodSignatureForSelector:"];
-    [NSObject enumerateMethodsInClass:originalMetaClass usingBlock:^(Class cls, SEL sel) {
+	
+	Class enumeratedClass = originalMetaClass;
+	if ([[mockedClass class] isSubclassOfClass:NSClassFromString(@"NSManagedObject")])
+	{
+		enumeratedClass = mockedClass;
+	}
+	
+    [NSObject enumerateMethodsInClass:enumeratedClass usingBlock:^(Class cls, SEL sel) {
         if((cls == object_getClass([NSObject class])) || (cls == [NSObject class]) || (cls == object_getClass(cls)))
             return;
         NSString *className = NSStringFromClass(cls);
-        if([className isEqualToString:@"NSManagedObject"])
-            return;
         NSString *selName = NSStringFromSelector(sel);
         if(([className hasPrefix:@"NS"] || [className hasPrefix:@"UI"]) &&
            ([selName hasPrefix:@"_"] || [selName hasSuffix:@"_"]))
@@ -156,7 +161,7 @@
     const char *types = method_getTypeEncoding(originalMethod);
 
     Class metaClass = object_getClass(mockedClass);
-    IMP forwarderIMP = [originalMetaClass instanceMethodForwarderForSelector:selector];
+    IMP forwarderIMP = [mockedClass instanceMethodForwarderForSelector:selector];
     class_replaceMethod(metaClass, selector, forwarderIMP, types);
     class_addMethod(metaClass, aliasSelector, originalIMP, types);
 }

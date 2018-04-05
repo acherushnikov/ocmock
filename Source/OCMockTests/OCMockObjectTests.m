@@ -171,6 +171,26 @@ TestOpaque myOpaque;
 
 @end
 
+@interface TestClassThatSingleton : NSObject
+
++ (instancetype)sharedInstance;
+
+@end
+
+@implementation TestClassThatSingleton
+
++ (instancetype)sharedInstance
+{
+	static TestClassThatSingleton *_sharedInstance = nil;
+	static dispatch_once_t oncePredicate;
+	dispatch_once(&oncePredicate, ^{
+		_sharedInstance = [[self alloc] init];
+	});
+	return _sharedInstance;
+}
+
+@end
+
 static NSString *TestNotification = @"TestNotification";
 
 
@@ -1168,6 +1188,16 @@ static NSString *TestNotification = @"TestNotification";
     NSDate *end = [NSDate date];
     
     XCTAssertTrue([end timeIntervalSinceDate:start] < 3, @"Should have returned before delay was up");
+}
+
+- (void)testTestClassThatSingleton
+{
+	mock = OCMClassMock([TestClassThatSingleton class]);
+	OCMStub(ClassMethod([mock sharedInstance])).andReturn(mock);
+	
+	id result = [TestClassThatSingleton sharedInstance];
+	
+	XCTAssertEqualObjects(result, mock, @"Should be equal");
 }
 
 @end
